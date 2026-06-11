@@ -10,25 +10,19 @@ from asd.kb.keyboard import main_kb
 from asd.kb.keyboard import check_kb
 from asd.kb.keyboard import slovo_kb
 from asd.kb.keyboard import cancel_kb
-from asd.kb.keyboard import words
+from asd.kb.keyboard import WORDS
 
 
 
 class StudyState(StatesGroup):
+    waiting_for_next = State()
     word_index = State()
     learned = State()
 class CheckState(StatesGroup):
     waiting_for_text = State()
 
 
-@router.message(StateFilter(None), F.text == "Выучить 5 слов")
-async def start_study(message: Message, state: FSMContext):
-    await state.update_data(word_index=0, learned=0)
-    await message.answer(
-        f"Слово 1/5: apple - яблоко",
-        reply_markup=slovo_kb()
-    )
-    await state.set_state(StudyState.word_index)
+
 
 
 
@@ -60,3 +54,24 @@ async def check_text(message: Message, state: FSMContext):
 @router.message(CheckState.waiting_for_text)
 async def check_incorrect(message: Message):
     await message.answer("Пожалуйста, отправьте текст для проверки.")
+
+
+@router.message(F.text == "Выучить 5 слов")
+async def start_study(message: Message, state: FSMContext):
+    await state.clear()
+
+    await state.update_data(
+        words=WORDS.copy(),
+        index=0,
+        learned=0
+    )
+
+    data = await state.get_data()
+    current_word = data["words"][0]
+
+    await message.answer(
+        f"Слово 1/5: {current_word['word']} - {current_word['trans']}",
+        reply_markup=slovo_kb()
+    )
+
+    await state.set_state(StudyState.waiting_for_next)

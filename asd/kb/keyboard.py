@@ -2,7 +2,13 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
-words = ["apple", "cat", "dog", "house", "car"]
+WORDS = [
+    {"word": "apple", "trans": "яблоко", "example": "I eat an apple"},
+    {"word": "cat", "trans": "кот", "example": "My cat sleeps"},
+    {"word": "dog", "trans": "собака", "example": "The dog runs"},
+    {"word": "house", "trans": "дом", "example": "Big house"},
+    {"word": "car", "trans": "машина", "example": "Red car"}
+]
 
 
 def main_kb() -> ReplyKeyboardMarkup:
