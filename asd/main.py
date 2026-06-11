@@ -2,7 +2,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from handlers import command
-
+iport Llamam
 
 
 

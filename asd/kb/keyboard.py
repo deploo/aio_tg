@@ -15,7 +15,7 @@ def main_kb() -> ReplyKeyboardMarkup:
 
 
 def slovo_kb() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()  # <- создаём ЭКЗЕМПЛЯР
+    builder = InlineKeyboardBuilder()
     builder.button(text="Следующее слово", callback_data="next")  # <- вызываем метод ЭКЗЕМПЛЯРА
     builder.button(text="Пример", callback_data="example")
     builder.button(text="Запомнил", callback_data="remember")
