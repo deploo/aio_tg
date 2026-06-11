@@ -1,14 +1,5 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-
-
-WORDS = [
-    {"word": "apple", "trans": "яблоко", "example": "I eat an apple"},
-    {"word": "cat", "trans": "кот", "example": "My cat sleeps"},
-    {"word": "dog", "trans": "собака", "example": "The dog runs"},
-    {"word": "house", "trans": "дом", "example": "Big house"},
-    {"word": "car", "trans": "машина", "example": "Red car"}
-]
 
 
 def main_kb() -> ReplyKeyboardMarkup:
@@ -24,19 +15,28 @@ def main_kb() -> ReplyKeyboardMarkup:
 
 
 def slovo_kb() -> InlineKeyboardMarkup:
-    InlineKeyboardBuilder.button(text="Следующее слово", callback_data="next")
-    InlineKeyboardBuilder.button(text="Пример", callback_data="example")
-    InlineKeyboardBuilder.button(text="Запомнил", callback_data="remember")
-    InlineKeyboardBuilder.button(text="Выйти", callback_data="exit")
-    return InlineKeyboardBuilder.as_markup()
+    builder = InlineKeyboardBuilder()  # <- создаём ЭКЗЕМПЛЯР
+    builder.button(text="Следующее слово", callback_data="next")  # <- вызываем метод ЭКЗЕМПЛЯРА
+    builder.button(text="Пример", callback_data="example")
+    builder.button(text="Запомнил", callback_data="remember")
+    builder.button(text="Выйти", callback_data="exit")
+    builder.adjust(2)
+    return builder.as_markup()
 
 
 def check_kb() -> InlineKeyboardMarkup:
-    InlineKeyboardBuilder.button(text="Проверить другой текст", callback_data="again")
-    InlineKeyboardBuilder.button(text="Исправить ошибку", callback_data="fix")
-    InlineKeyboardBuilder.button(text="Главное меню", callback_data="menu")
-    return InlineKeyboardBuilder.as_markup()
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Проверить другой текст", callback_data="again")
+    builder.button(text="Исправить ошибку", callback_data="fix")
+    builder.button(text="Главное меню", callback_data="menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
 
 def cancel_kb() -> ReplyKeyboardMarkup:
-    ReplyKeyboardBuilder().add( KeyboardButton(text="Отмена"), KeyboardButton(text="Меню"))
-    return ReplyKeyboardBuilder().as_markup(resize_keyboard=True)
+    builder = ReplyKeyboardBuilder()
+    builder.add(
+        KeyboardButton(text="Отмена"),
+        KeyboardButton(text="Меню")
+    )
+    return builder.as_markup(resize_keyboard=True)

@@ -10,7 +10,13 @@ from asd.kb.keyboard import main_kb
 from asd.kb.keyboard import check_kb
 from asd.kb.keyboard import slovo_kb
 from asd.kb.keyboard import cancel_kb
-from asd.kb.keyboard import WORDS
+WORDS = [
+    {"word": "apple", "trans": "яблоко", "example": "I eat an apple"},
+    {"word": "cat", "trans": "кот", "example": "My cat sleeps"},
+    {"word": "dog", "trans": "собака", "example": "The dog runs"},
+    {"word": "house", "trans": "дом", "example": "Big house"},
+    {"word": "car", "trans": "машина", "example": "Red car"}
+]
 
 
 
