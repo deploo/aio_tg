@@ -19,7 +19,7 @@ n_gpu_layers=35 # если есть NVIDIA GPU
 
 
 async def main():
-    bot = Bot(token="")
+    bot = Bot(token="8561740580:AAEOQXMBh2PAruhUCxfx9hP0gr-583PUGY4")
     dp = Dispatcher()
 
     dp.include_router(command.router)

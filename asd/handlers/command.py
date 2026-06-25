@@ -4,8 +4,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-from asd.kb.keyboard import main_kb ,  slovo_kb , check_kb, cancel_kb
+from asd.kb.keyboard import main_kb, slovo_kb, check_kb, cancel_kb
 from asd.datasourse.datebase import generate_new_word, check_llama
+from asd.blb.base import add_learned_word, get_learned_words, get_total_learned, clear_user_stats
 
 router = Router()
 
@@ -43,7 +44,8 @@ async def start_study(message: Message, state: FSMContext):
     await state.update_data(
         words=words,
         index=0,
-        learned=0
+        learned=0,
+        current_words=[]
     )
 
     data = await state.get_data()
@@ -60,6 +62,7 @@ async def start_study(message: Message, state: FSMContext):
 async def study_actions(callback: CallbackQuery, state: FSMContext):
     action = callback.data
     data = await state.get_data()
+    user_id = callback.from_user.id
 
     words = data.get("words", [])
     if not words:
@@ -70,6 +73,7 @@ async def study_actions(callback: CallbackQuery, state: FSMContext):
 
     index = data.get("index", 0)
     learned = data.get("learned", 0)
+    current_words = data.get("current_words", [])
     current_word = words[index]
 
     if action == "next":
@@ -81,8 +85,18 @@ async def study_actions(callback: CallbackQuery, state: FSMContext):
                 reply_markup=slovo_kb()
             )
         else:
+            for word_data in current_words:
+                add_learned_word(user_id, word_data["word"], word_data["trans"])
+
+            learned_list = "\n".join([f"• {w['word']} - {w['trans']}" for w in current_words])
+
+
+            total_learned = get_total_learned(user_id)
+
             await callback.message.edit_text(
-                text=f"Поздравляю! Выучено слов: {learned}/5",
+                text=f"Поздравляю! Выучено слов в этой сессии: {learned}/5\n\n"
+                     f"Выученные слова:\n{learned_list}\n\n"
+                     f"Всего выучено слов: {total_learned}",
                 reply_markup=None
             )
             await state.clear()
@@ -98,7 +112,11 @@ async def study_actions(callback: CallbackQuery, state: FSMContext):
         )
 
     elif action == "remember":
-        await state.update_data(learned=learned + 1)
+        current_words.append(current_word)
+        await state.update_data(
+            learned=learned + 1,
+            current_words=current_words
+        )
         await callback.answer("Слово запомнено!")
 
     elif action == "exit":
@@ -137,7 +155,7 @@ async def check_text(message: Message, state: FSMContext):
 
     user_text = message.text
 
-    processing_msg = await message.answer("Проверяю текст через AI")
+    processing_msg = await message.answer("Проверяю текст через AI...")
 
     response = await check_llama(user_text)
 
@@ -180,23 +198,34 @@ async def check_actions(callback: CallbackQuery, state: FSMContext):
 
 @router.message(F.text == "Статистика")
 async def show_stats(message: Message, state: FSMContext):
-    data = await state.get_data()
-    learned = data.get("learned", 0)
-    if learned > 0:
+    user_id = message.from_user.id
+
+    total_learned = get_total_learned(user_id)
+    learned_words = get_learned_words(user_id)
+
+    if total_learned > 0 and learned_words:
+        words_list = "\n".join([f"• {w['word']} - {w['trans']}" for w in learned_words])
+
         await message.answer(
-            text=f"Выучено слов в текущей сессии: {learned}/5"
+            text=f"Всего выучено слов: {total_learned}\n\n"
+                 f"Выученные слова:\n{words_list}"
         )
     else:
         await message.answer(
-            text="Нет активной сессии."
+            text="Вы ещё не выучили ни одного слова.\nНажмите 'Выучить 5 слов'."
         )
 
 
 @router.message(F.text == "Сбросить")
 async def reset_study(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+
+
+    clear_user_stats(user_id)
     await state.clear()
+
     await message.answer(
-        text="Прогресс сброшен.",
+        text="Статистика сброшена.",
         reply_markup=main_kb()
     )
 
