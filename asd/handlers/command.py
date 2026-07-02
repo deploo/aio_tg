@@ -236,3 +236,4 @@ async def unknown_message(message: Message):
         text="Используйте кнопки меню.",
         reply_markup=main_kb()
     )
+    a
